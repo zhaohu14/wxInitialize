@@ -3,7 +3,7 @@ const eventBus = new Map();
 let onceKey = []
 const functionList = {
     /*
-        onShow 再次触发需要执行的特定方法
+        @functionName: 重置onshow
         @callback： 需要在onshow再次执行时执行的方法
         @beforFunction： 在onshow再次执行前执行的方法 比如要跳转页面
     */
@@ -37,7 +37,7 @@ const functionList = {
         }
     },
     /*
-        跳转页面传Object参数
+        @functionName: 路由传参
         @url: 需要跳转的路径
         @data: 需要传给跳转页面的数据 Object  如果只需要传单个参数建议直接使用wx.navigateTo的路径传参
         @获取数据用_getOnLoadData().then(ret) 方式获取
@@ -53,7 +53,7 @@ const functionList = {
         })
     },
     /*
-        onLoad 获取_navigateTo路由跳转的参数
+        @functionName: 获取路由参数
         @that: 当前页面this指向
         @建议：只适用于_navigateTo方法传参接受参数
     */
@@ -70,7 +70,7 @@ const functionList = {
 
     },
     /*
-        方法执行结束之前不允许重复执行的方法
+        @functionName: 一次执行
         @func: 需要执行的方法
         @func(e, key)：func 方法会接收2个参数，需要在需要解除限制的地方执行e(key) 并传入key
         @key: 方法的key 建议全局唯一性
