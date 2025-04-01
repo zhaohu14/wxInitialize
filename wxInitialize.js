@@ -72,7 +72,7 @@ const functionList = {
     /*
         方法执行结束之前不允许重复执行的方法
         @func: 需要执行的方法
-        @func： (e, key) func 方法会接收2个参数，需要在需要解除限制的地方执行e(key) 并传入key
+        @func(e, key)：func 方法会接收2个参数，需要在需要解除限制的地方执行e(key) 并传入key
         @key: 方法的key 建议全局唯一性
     */
     _onceFunction(func, key) {
@@ -106,4 +106,4 @@ module.exports = {
         })
     },
     ...functionList
-};
+}
