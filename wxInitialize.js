@@ -1,6 +1,6 @@
 // 使用全局事件总线（替代Node.js的events模块）
 const eventBus = new Map();
-
+let keyArr = []
 const functionList = {
     /*
         onShow 再次触发需要执行的特定方法
@@ -70,11 +70,29 @@ const functionList = {
 
     },
     /*
-        防止重复点击
+        方法执行结束之前不允许重复执行的方法
         @func: 需要执行的方法
+        @func： (e, key) func 方法会接收2个参数，需要在需要解除限制的地方执行e(key) 并传入key
         @key: 方法的key 建议全局唯一性
     */
-   _onceFunction(func, key) {}
+    _onceFunction(func, key) {
+        if (keyArr.indexOf(key) !== -1) {
+            return
+        }
+        keyArr.push(key)
+        let functionCallBack = () => {
+            return new Promise(resolve => {
+                func(resolve, key)
+            })
+        }
+        functionCallBack().then((e) => {
+            keyArr = keyArr.filter(a => {
+                return a !== e
+            })
+        })
+
+
+    }
 }
 
 module.exports = {
