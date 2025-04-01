@@ -1,5 +1,6 @@
 // 使用全局事件总线（替代Node.js的events模块）
 const eventBus = new Map();
+/* 特殊事件方法 */
 let onceKey = []
 const functionList = {
     /*
@@ -95,6 +96,51 @@ const functionList = {
     }
 }
 
+/* 对象储存方法 */
+const OBJECT_INFO = {}
+const WATCH_OBJECT_INFO = {}
+const OBJECT_STORAGE = {
+    /*
+        @functionName: 更新数据
+        @key: 指定对象属性名
+        @data: 需要存储的数据
+    */
+    _upData: function (key, data) {
+        OBJECT_INFO[key] = data
+    },
+    /*
+        @functionName: 获取指定属性数据
+        @key: 指定对象属性名
+    */
+    _getData: function (key) {
+        return OBJECT_INFO[key]
+    },
+    /*
+        @functionName: 监听属性变化
+        @variate： 监听对象内指定属性名的数据
+        @methods: 被监听属性数据发生变化回调函数
+    */
+    _watch: function(variate, methods) {
+        var obj = OBJECT_INFO
+        let val = obj[variate]
+        WATCH_OBJECT_INFO[variate] ? WATCH_OBJECT_INFO[variate] = WATCH_OBJECT_INFO[variate] + 1 : WATCH_OBJECT_INFO[variate] = 1
+        Object.defineProperty(obj, variate, {
+            set: function(value) {
+                val = value
+                if (WATCH_OBJECT_INFO[variate] > 0) {
+                    WATCH_OBJECT_INFO[variate] = WATCH_OBJECT_INFO[variate] - 1
+                    methods(variate, value)
+                }
+                
+            },
+            get: function() {
+                return val
+            }
+        })
+    }
+}
+
+
 module.exports = {
     /*
         初始化方法库 挂载到全局 直接wx.方法名()使用
@@ -103,6 +149,17 @@ module.exports = {
         const funcKey = Object.keys(functionList)
         funcKey.forEach(ret => {
             wx[ret] = functionList[ret]
+        })
+    },
+    initializeAll() {
+        let arr = {
+            ...functionList,
+            ...OBJECT_STORAGE
+        }
+        console.log(arr)
+        const funcKey = Object.keys(arr)
+        funcKey.forEach(ret => {
+            wx[ret] = arr[ret]
         })
     },
     ...functionList
