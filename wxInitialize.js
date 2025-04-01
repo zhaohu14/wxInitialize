@@ -119,16 +119,20 @@ const OBJECT_STORAGE = {
         @functionName: 监听属性变化
         @variate： 监听对象内指定属性名的数据
         @methods: 被监听属性数据发生变化回调函数
+        @注意：每次调用只监听一次变化
     */
     _watch: function(variate, methods) {
         var obj = OBJECT_INFO
         let val = obj[variate]
-        WATCH_OBJECT_INFO[variate] ? WATCH_OBJECT_INFO[variate] = WATCH_OBJECT_INFO[variate] + 1 : WATCH_OBJECT_INFO[variate] = 1
+        WATCH_OBJECT_INFO[variate] ? WATCH_OBJECT_INFO[variate] = WATCH_OBJECT_INFO[variate] + 1 : WATCH_OBJECT_INFO[variate] = 2
         Object.defineProperty(obj, variate, {
             set: function(value) {
                 val = value
                 if (WATCH_OBJECT_INFO[variate] > 0) {
                     WATCH_OBJECT_INFO[variate] = WATCH_OBJECT_INFO[variate] - 1
+                    if (WATCH_OBJECT_INFO[variate] <= 0) {
+                        delete WATCH_OBJECT_INFO[variate]
+                    }
                     methods(variate, value)
                 }
                 
@@ -137,6 +141,31 @@ const OBJECT_STORAGE = {
                 return val
             }
         })
+    }
+}
+
+/* 特殊赋值方法 */
+let methodInfo  = {}
+const ADD_FUNCTION = {
+    _addMethods (method, key) {
+        if (typeof method !== 'function') {
+            return wx.showModal({
+                title: '温馨提示',
+                content: `method not a function`,
+                showCancel: false
+            })
+        }
+        methodInfo[key] = method
+    },
+    _runMethod (key) {
+        if (!methodInfo[key]) {
+            wx.showModal({
+                title: '温馨提示',
+                content: `${key}不存在`,
+                showCancel: false
+            }) 
+        }
+        return methodInfo[key]
     }
 }
 
@@ -154,7 +183,8 @@ module.exports = {
     initializeAll() {
         let arr = {
             ...functionList,
-            ...OBJECT_STORAGE
+            ...OBJECT_STORAGE,
+            ...ADD_FUNCTION
         }
         console.log(arr)
         const funcKey = Object.keys(arr)
